@@ -1,0 +1,531 @@
+import os
+import tkinter as tk
+from tkinter import filedialog
+import pandas as pd
+from tkinter import simpledialog
+from tkinter import messagebox
+
+# Create the Tkinter root window
+root = tk.Tk()
+root.withdraw()
+
+# Prompt the user to select the input Excel file
+input_file_path = filedialog.askopenfilename(title="Select Input Met Data Excel File", filetypes=[("Excel Files", "*.xlsx")])
+if not input_file_path:
+    print("No input file selected. Exiting...")
+    exit()
+
+# Prompt the user to select the save location
+save_location = filedialog.askdirectory(title="Select Save Location for Monthly EMFAC input files")
+if not save_location:
+    print("No save location selected. Exiting...")
+    exit()
+
+# Prompt the user to select the EmfacHK43 file path
+emfacHK43_path = filedialog.askopenfilename(title="Select EmfacHK43.exe File")
+if not emfacHK43_path:
+    print("No EmfacHK43 file selected. Exiting...")
+    exit()
+
+# Prompt the user to select the Month Low (ST) or Month Average (LT) option
+#option = simpledialog.askstring("Option Selection", "Enter *ST* for Month Low EF or *LT* for Month Average EF")
+
+
+# for Monthly Lowest
+df = pd.read_excel(input_file_path, sheet_name="EMFAC template", skiprows=32, usecols="A:Y", nrows=26)
+
+# Get the list of month names
+months = df.columns[1::2]
+
+# Define the month name to numerical representation dictionary
+month_dict = {
+    'January': 1,
+    'February': 2,
+    'March': 3,
+    'April': 4,
+    'May': 5,
+    'June': 6,
+    'July': 7,
+    'August': 8,
+    'September': 9,
+    'October': 10,
+    'November': 11,
+    'December': 12
+}
+
+# Define the EmfacHK43-Header content
+header_content = """EmfacHK43-Header
+    Version 4 3 0 0             
+    Scenario-Count 1
+    HK-IM Y 0 0 2020 0 0 2020 0 0 2020 0 0 2020 0 0 2020 0 0 2020 0 0 2020 0 0 2020 0 0 2020 0 0 2020 0 0 2020 0 0 2020 0 0 2020 0 0 2020 0 0 2020
+    HKUNITS Y
+End-Header
+"""
+
+# Define the Begin-Scenario and End-Scenario content
+scenario_content_5_20 = """Begin-Scenario 1
+    Title Kwai Tai Rd
+    Program-Mode Emfac
+    Area-Method One-County
+    Area-Type SAR
+    Area-Number 38 [Hong Kong SAR]
+    HC-Mode VOC
+    PM-Mode PM10
+    CYr 2050
+    BYr -1
+    MYr All
+    Vehicles PC TAXI LGV3 LGV4 LGV6 HGV7 HGV8 PLB PV4 PV5 NFB6 NFB7 NFB8 FBSD FBDD MC HGV9 NFB9
+    Season Annual
+    Emfac-Reports RTL
+    Emfac-Speed 5. 6. 7. 8. 9. 10. 11. 12. 13. 14. 15. 16. 17. 18. 19. 20.  
+"""
+
+# Define the Begin-Scenario and End-Scenario content
+scenario_content_21_40 = """Begin-Scenario 1
+    Title Kwai Tai Rd
+    Program-Mode Emfac
+    Area-Method One-County
+    Area-Type SAR
+    Area-Number 38 [Hong Kong SAR]
+    HC-Mode VOC
+    PM-Mode PM10
+    CYr 2050
+    BYr -1
+    MYr All
+    Vehicles PC TAXI LGV3 LGV4 LGV6 HGV7 HGV8 PLB PV4 PV5 NFB6 NFB7 NFB8 FBSD FBDD MC HGV9 NFB9
+    Season Annual
+    Emfac-Reports RTL
+    Emfac-Speed 21. 22. 23. 24. 25. 26. 27. 28. 29. 30. 31. 32. 33. 34. 35. 36. 37. 38. 39. 40.  
+"""
+
+# Define the Begin-Scenario and End-Scenario content
+scenario_content_41_60 = """Begin-Scenario 1
+    Title Kwai Tai Rd
+    Program-Mode Emfac
+    Area-Method One-County
+    Area-Type SAR
+    Area-Number 38 [Hong Kong SAR]
+    HC-Mode VOC
+    PM-Mode PM10
+    CYr 2050
+    BYr -1
+    MYr All
+    Vehicles PC TAXI LGV3 LGV4 LGV6 HGV7 HGV8 PLB PV4 PV5 NFB6 NFB7 NFB8 FBSD FBDD MC HGV9 NFB9
+    Season Annual
+    Emfac-Reports RTL
+    Emfac-Speed 41. 42. 43. 44. 45. 46. 47. 48. 49. 50. 51. 52. 53. 54. 55. 56. 57. 58. 59. 60. 
+"""
+
+# Define the Begin-Scenario and End-Scenario content
+scenario_content_61_80 = """Begin-Scenario 1
+    Title Kwai Tai Rd
+    Program-Mode Emfac
+    Area-Method One-County
+    Area-Type SAR
+    Area-Number 38 [Hong Kong SAR]
+    HC-Mode VOC
+    PM-Mode PM10
+    CYr 2050
+    BYr -1
+    MYr All
+    Vehicles PC TAXI LGV3 LGV4 LGV6 HGV7 HGV8 PLB PV4 PV5 NFB6 NFB7 NFB8 FBSD FBDD MC HGV9 NFB9
+    Season Annual
+    Emfac-Reports RTL
+    Emfac-Speed 61. 62. 63. 64. 65. 66. 67. 68. 69. 70. 71. 72. 73. 74. 75. 76. 77. 78. 79. 80.
+"""
+
+# Prompt the user to select the Month Low (ST) or Month Average (LT) option
+year = simpledialog.askstring("Input Assessment Year", "Enter the year for assessment:")
+scenario_content_5_20 = scenario_content_5_20.replace("CYr 2050", "CYr {}".format(year))
+scenario_content_21_40 = scenario_content_21_40.replace("CYr 2050", "CYr {}".format(year))
+scenario_content_41_60 =scenario_content_41_60.replace("CYr 2050", "CYr {}".format(year))
+scenario_content_61_80 = scenario_content_61_80.replace("CYr 2050", "CYr {}".format(year))
+
+# Prompt the user to enter the project name
+project = simpledialog.askstring("Input Project Name", "Enter the Project Name:")
+scenario_content_5_20 = scenario_content_5_20.replace("Title Kwai Tai Rd", "Title {}".format(project))
+scenario_content_5_20 = scenario_content_21_40.replace("Title Kwai Tai Rd", "Title {}".format(project))
+scenario_content_5_20 = scenario_content_41_60.replace("Title Kwai Tai Rd", "Title {}".format(project))
+scenario_content_5_20 = scenario_content_61_80.replace("Title Kwai Tai Rd", "Title {}".format(project))
+
+# Prompt the user to enter the PATH grid
+PATH = simpledialog.askstring("Input PATH grid", "Enter 4 digits only:")
+
+# Create the base folder for all months
+#base_folder = os.path.join(save_location, "Months")
+#os.makedirs(base_folder, exist_ok=True)
+
+# Iterate through each month for SHORT TERM
+for month in months:
+    # Get the column indices for temperature and RH for the current month
+    temp_col = df.columns.get_loc(month)
+    rh_col = df.columns.get_loc(month) + 1
+
+    # Get the hourly temperature and RH data for the current month
+    temp_data = df.iloc[1:, temp_col].tolist()
+    rh_data = df.iloc[1:, rh_col].tolist()
+
+    # Get the numerical representation of the month
+    month_num = str(month_dict.get(month, 0))  # Convert to string, default to '0' if month name not found
+
+    # Create a folder name for the current month
+    #month_folder_name = f"Month {month_num}"
+
+    # Create a folder for the current month
+    #month_folder = os.path.join(save_location, month_folder_name)
+    #os.makedirs(month_folder, exist_ok=True)
+    os.makedirs(save_location, exist_ok=True)
+
+    #5-20 kph
+
+    # Construct the .bat file content
+    bat_file_content = f'set EmfacHK43="{emfacHK43_path}"\n\n'
+    bat_file_content += f'%EmfacHK43% -batch'
+
+    # Generate a separate text file for each hour
+    file_names = []
+    for hour in range(24):
+        # Generate the file name based on the month and hour
+        file_name = f"{PATH}_ST_{year}_month_{month_num}_hour_{hour}_speed_05-20.inp"
+
+        # Add the file name to the .bat file content
+        bat_file_content += f' {file_name}'
+
+        # Append the file name to the list
+        file_names.append(file_name)
+
+        # Construct the file path
+        #file_path = os.path.join(month_folder, file_name)
+        file_path = os.path.join(save_location, file_name)
+
+        # Write the content to the text file
+        with open(file_path, "w") as file:
+            # Write the EmfacHK43-Header content
+            file.write(header_content)
+
+            # Write the Begin-Scenario content
+            file.write(scenario_content_5_20)
+
+            # Write the Emfac-RH and Emfac-Temp rows
+            file.write(f"    Emfac-RH {rh_data[hour]}\n")
+            file.write(f"    Emfac-Temp {temp_data[hour]}\n")
+
+            # Write the End-Scenario content
+            file.write("End-Scenario\n")
+
+        print(f"Generated file: {file_path}")
+
+    #21-40 kph
+
+    # Generate a separate text file for each hour
+    file_names = []
+    for hour in range(24):
+        # Generate the file name based on the month and hour
+        file_name = f"{PATH}_ST_{year}_month_{month_num}_hour_{hour}_speed_21-40.inp"
+
+        # Add the file name to the .bat file content
+        bat_file_content += f' {file_name}'
+
+        # Append the file name to the list
+        file_names.append(file_name)
+
+        # Construct the file path
+        #file_path = os.path.join(month_folder, file_name)
+        file_path = os.path.join(save_location, file_name)
+
+        # Write the content to the text file
+        with open(file_path, "w") as file:
+            # Write the EmfacHK43-Header content
+            file.write(header_content)
+
+            # Write the Begin-Scenario content
+            file.write(scenario_content_21_40)
+
+            # Write the Emfac-RH and Emfac-Temp rows
+            file.write(f"    Emfac-RH {rh_data[hour]}\n")
+            file.write(f"    Emfac-Temp {temp_data[hour]}\n")
+
+            # Write the End-Scenario content
+            file.write("End-Scenario\n")
+
+        print(f"Generated file: {file_path}")
+
+
+    #41-60 kph
+
+    # Generate a separate text file for each hour
+    file_names = []
+    for hour in range(24):
+        # Generate the file name based on the month and hour
+        file_name = f"{PATH}_ST_{year}_month_{month_num}_hour_{hour}_speed_41-60.inp"
+
+        # Add the file name to the .bat file content
+        bat_file_content += f' {file_name}'
+
+        # Append the file name to the list
+        file_names.append(file_name)
+
+        # Construct the file path
+        #file_path = os.path.join(month_folder, file_name)
+        file_path = os.path.join(save_location, file_name)
+
+        # Write the content to the text file
+        with open(file_path, "w") as file:
+            # Write the EmfacHK43-Header content
+            file.write(header_content)
+
+            # Write the Begin-Scenario content
+            file.write(scenario_content_41_60)
+
+            # Write the Emfac-RH and Emfac-Temp rows
+            file.write(f"    Emfac-RH {rh_data[hour]}\n")
+            file.write(f"    Emfac-Temp {temp_data[hour]}\n")
+
+            # Write the End-Scenario content
+            file.write("End-Scenario\n")
+
+        print(f"Generated file: {file_path}")
+
+
+    #61-80 kph
+
+    # Generate a separate text file for each hour
+    file_names = []
+    for hour in range(24):
+        # Generate the file name based on the month and hour
+        file_name = f"{PATH}_ST_{year}_month_{month_num}_hour_{hour}_speed_61-80.inp"
+
+        # Add the file name to the .bat file content
+        bat_file_content += f' {file_name}'
+
+        # Append the file name to the list
+        file_names.append(file_name)
+
+        # Construct the file path
+        #file_path = os.path.join(month_folder, file_name)
+        file_path = os.path.join(save_location, file_name)
+
+        # Write the content to the text file
+        with open(file_path, "w") as file:
+            # Write the EmfacHK43-Header content
+            file.write(header_content)
+
+            # Write the Begin-Scenario content
+            file.write(scenario_content_61_80)
+
+            # Write the Emfac-RH and Emfac-Temp rows
+            file.write(f"    Emfac-RH {rh_data[hour]}\n")
+            file.write(f"    Emfac-Temp {temp_data[hour]}\n")
+
+            # Write the End-Scenario content
+            file.write("End-Scenario\n")
+
+        print(f"Generated file: {file_path}")
+
+
+    bat_file_path = os.path.join(save_location, f"run_{PATH}_ST_month_{month_num}.bat")
+    with open(bat_file_path, "w") as bat_file:
+        bat_file.write(bat_file_content)
+
+    print(f"Generated .bat file: {bat_file_path}")
+
+
+
+
+
+
+# for Monthly Average
+df = pd.read_excel(input_file_path, sheet_name="EMFAC template", skiprows=3, usecols="A:Y", nrows=26)
+
+# Get the list of month names
+months = df.columns[1::2]
+
+# Define the month name to numerical representation dictionary
+month_dict = {
+    'January': 1,
+    'February': 2,
+    'March': 3,
+    'April': 4,
+    'May': 5,
+    'June': 6,
+    'July': 7,
+    'August': 8,
+    'September': 9,
+    'October': 10,
+    'November': 11,
+    'December': 12
+}
+
+# Iterate through each month for LONG TERM
+for month in months:
+    # Get the column indices for temperature and RH for the current month
+    temp_col = df.columns.get_loc(month)
+    rh_col = df.columns.get_loc(month) + 1
+
+    # Get the hourly temperature and RH data for the current month
+    temp_data = df.iloc[1:, temp_col].tolist()
+    rh_data = df.iloc[1:, rh_col].tolist()
+
+    # Get the numerical representation of the month
+    month_num = str(month_dict.get(month, 0))  # Convert to string, default to '0' if month name not found
+
+    # Create a folder name for the current month
+    #month_folder_name = f"Month {month_num}"
+
+    # Create a folder for the current month
+    #month_folder = os.path.join(save_location, month_folder_name)
+    #os.makedirs(month_folder, exist_ok=True)
+    os.makedirs(save_location, exist_ok=True)
+
+    #5-20 kph
+
+    # Construct the .bat file content
+    bat_file_content = f'set EmfacHK43="{emfacHK43_path}"\n\n'
+    bat_file_content += f'%EmfacHK43% -batch'
+
+    # Generate a separate text file for each hour
+    file_names = []
+    for hour in range(24):
+        # Generate the file name based on the month and hour
+        file_name = f"{PATH}_LT_{year}_month_{month_num}_hour_{hour}_speed_05-20.inp"
+
+        # Add the file name to the .bat file content
+        bat_file_content += f' {file_name}'
+
+        # Append the file name to the list
+        file_names.append(file_name)
+
+        # Construct the file path
+        #file_path = os.path.join(month_folder, file_name)
+        file_path = os.path.join(save_location, file_name)
+
+        # Write the content to the text file
+        with open(file_path, "w") as file:
+            # Write the EmfacHK43-Header content
+            file.write(header_content)
+
+            # Write the Begin-Scenario content
+            file.write(scenario_content_5_20)
+
+            # Write the Emfac-RH and Emfac-Temp rows
+            file.write(f"    Emfac-RH {rh_data[hour]}\n")
+            file.write(f"    Emfac-Temp {temp_data[hour]}\n")
+
+            # Write the End-Scenario content
+            file.write("End-Scenario\n")
+
+        print(f"Generated file: {file_path}")
+
+    #21-40 kph
+
+    # Generate a separate text file for each hour
+    file_names = []
+    for hour in range(24):
+        # Generate the file name based on the month and hour
+        file_name = f"{PATH}_LT_{year}_month_{month_num}_hour_{hour}_speed_21-40.inp"
+
+        # Add the file name to the .bat file content
+        bat_file_content += f' {file_name}'
+
+        # Append the file name to the list
+        file_names.append(file_name)
+
+        # Construct the file path
+        #file_path = os.path.join(month_folder, file_name)
+        file_path = os.path.join(save_location, file_name)
+
+        # Write the content to the text file
+        with open(file_path, "w") as file:
+            # Write the EmfacHK43-Header content
+            file.write(header_content)
+
+            # Write the Begin-Scenario content
+            file.write(scenario_content_21_40)
+
+            # Write the Emfac-RH and Emfac-Temp rows
+            file.write(f"    Emfac-RH {rh_data[hour]}\n")
+            file.write(f"    Emfac-Temp {temp_data[hour]}\n")
+
+            # Write the End-Scenario content
+            file.write("End-Scenario\n")
+
+        print(f"Generated file: {file_path}")
+
+
+    #41-60 kph
+
+    # Generate a separate text file for each hour
+    file_names = []
+    for hour in range(24):
+        # Generate the file name based on the month and hour
+        file_name = f"{PATH}_LT_{year}_month_{month_num}_hour_{hour}_speed_41-60.inp"
+
+        # Add the file name to the .bat file content
+        bat_file_content += f' {file_name}'
+
+        # Append the file name to the list
+        file_names.append(file_name)
+
+        # Construct the file path
+        #file_path = os.path.join(month_folder, file_name)
+        file_path = os.path.join(save_location, file_name)
+
+        # Write the content to the text file
+        with open(file_path, "w") as file:
+            # Write the EmfacHK43-Header content
+            file.write(header_content)
+
+            # Write the Begin-Scenario content
+            file.write(scenario_content_41_60)
+
+            # Write the Emfac-RH and Emfac-Temp rows
+            file.write(f"    Emfac-RH {rh_data[hour]}\n")
+            file.write(f"    Emfac-Temp {temp_data[hour]}\n")
+
+            # Write the End-Scenario content
+            file.write("End-Scenario\n")
+
+        print(f"Generated file: {file_path}")
+
+
+    #61-80 kph
+
+    # Generate a separate text file for each hour
+    file_names = []
+    for hour in range(24):
+        # Generate the file name based on the month and hour
+        file_name = f"{PATH}_LT_{year}_month_{month_num}_hour_{hour}_speed_61-80.inp"
+
+        # Add the file name to the .bat file content
+        bat_file_content += f' {file_name}'
+
+        # Append the file name to the list
+        file_names.append(file_name)
+
+        # Construct the file path
+        #file_path = os.path.join(month_folder, file_name)
+        file_path = os.path.join(save_location, file_name)
+
+        # Write the content to the text file
+        with open(file_path, "w") as file:
+            # Write the EmfacHK43-Header content
+            file.write(header_content)
+
+            # Write the Begin-Scenario content
+            file.write(scenario_content_61_80)
+
+            # Write the Emfac-RH and Emfac-Temp rows
+            file.write(f"    Emfac-RH {rh_data[hour]}\n")
+            file.write(f"    Emfac-Temp {temp_data[hour]}\n")
+
+            # Write the End-Scenario content
+            file.write("End-Scenario\n")
+
+        print(f"Generated file: {file_path}")
+
+
+    bat_file_path = os.path.join(save_location, f"run_{PATH}_LT_month_{month_num}.bat")
+    with open(bat_file_path, "w") as bat_file:
+        bat_file.write(bat_file_content)
+
+    print(f"Generated .bat file: {bat_file_path}")
